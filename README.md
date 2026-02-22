@@ -163,7 +163,7 @@ The server provides 30 tools covering 100% of the Readwise API:
 - **get_books**: Get books from your library
 - **get_book**: Get a single book by ID
 
-### Tags (Reader v3)
+### Tags
 - **get_tags**: List all tags in your library
 
 ### Highlight Tag Management (v2)

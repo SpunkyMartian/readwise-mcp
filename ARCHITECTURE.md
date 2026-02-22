@@ -161,7 +161,7 @@ readwise-mcp/
 │   │   ├── get-daily-review.ts    # Daily review highlights
 │   │   ├── get-books.ts           # List books (v2)
 │   │   ├── get-book.ts            # Get single book (v2)
-│   │   ├── get-tags.ts            # List tags (v3)
+│   │   ├── get-tags.ts            # List tags (v2)
 │   │   ├── *-highlight-tag*.ts    # Highlight tag CRUD (5 tools)
 │   │   ├── *-book-tag*.ts         # Book tag CRUD (5 tools)
 │   │   └── bulk-*-documents.ts    # Bulk operations (3 tools)
@@ -489,7 +489,7 @@ class ReadwiseAPI {
   async exportHighlights(params: ExportHighlightsParams): Promise<any>;
   async getDailyReview(): Promise<any>;
 
-  // Tags (v3)
+  // Tags (v2)
   async getTags(): Promise<TagResponse>;
 
   // Highlight Tag CRUD (v2)
