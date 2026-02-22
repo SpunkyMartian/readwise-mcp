@@ -4,8 +4,8 @@ import { ReadwiseClient } from '../src/api/client.js';
 import { ReadwiseAPI } from '../src/api/readwise-api.js';
 import { GetBooksTool } from '../src/tools/get-books.js';
 import { GetHighlightsTool } from '../src/tools/get-highlights.js';
-import { GetDocumentsTool } from '../src/tools/get-documents.js';
-import { SearchHighlightsTool } from '../src/tools/search-highlights.js';
+import { ValidateTokenTool } from '../src/tools/validate-token.js';
+import { ListDocumentsTool } from '../src/tools/list-documents.js';
 import { ReadwiseHighlightPrompt } from '../src/prompts/highlight-prompt.js';
 import { ReadwiseSearchPrompt } from '../src/prompts/search-prompt.js';
 import { MCPRequest, MCPResponse, ErrorResponse } from '../src/types/index.js';
@@ -15,8 +15,8 @@ jest.mock('../src/api/client');
 jest.mock('../src/api/readwise-api');
 jest.mock('../src/tools/get-books');
 jest.mock('../src/tools/get-highlights');
-jest.mock('../src/tools/get-documents');
-jest.mock('../src/tools/search-highlights');
+jest.mock('../src/tools/validate-token');
+jest.mock('../src/tools/list-documents');
 jest.mock('../src/prompts/highlight-prompt');
 jest.mock('../src/prompts/search-prompt');
 
@@ -44,8 +44,8 @@ describe('ReadwiseMCPServer', () => {
     // Check if the tools and prompts were registered
     expect(GetBooksTool).toHaveBeenCalled();
     expect(GetHighlightsTool).toHaveBeenCalled();
-    expect(GetDocumentsTool).toHaveBeenCalled();
-    expect(SearchHighlightsTool).toHaveBeenCalled();
+    expect(ValidateTokenTool).toHaveBeenCalled();
+    expect(ListDocumentsTool).toHaveBeenCalled();
     expect(ReadwiseHighlightPrompt).toHaveBeenCalled();
     expect(ReadwiseSearchPrompt).toHaveBeenCalled();
   });

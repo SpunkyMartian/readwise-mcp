@@ -214,48 +214,48 @@ Check the API status and rate limit information at any time.
 
 ## Available Tools
 
-The server provides 30 tools for interacting with your Readwise library:
+The server provides 30 tools covering 100% of the Readwise API:
 
-### Core Tools
-- **get_highlights**: Retrieve highlights with filtering and pagination
-- **get_books**: Get books from your library
-- **get_documents**: Get documents from your library
-- **search_highlights**: Search for highlights by query
-- **get_tags**: List all tags in your library
-- **get_recent_content**: Get recently saved content
+### Auth
+- **validate_token**: Check if your API token is valid
 
-### Tag Management
-- **document_tags**: Get, update, add, or remove tags on a document
-- **bulk_tags**: Apply tags to multiple documents
-
-### Reading Progress
-- **get_reading_progress**: Get progress on a specific document
-- **update_reading_progress**: Update reading status and progress
-- **get_reading_list**: Get documents filtered by reading status
-
-### Highlight Management
-- **create_highlight**: Create a new highlight
-- **update_highlight**: Modify an existing highlight
-- **delete_highlight**: Remove a highlight
-- **create_note**: Add a note to a highlight
-
-### Search Tools
-- **advanced_search**: Powerful multi-parameter search
-- **search_by_tag**: Find content by tags
-- **search_by_date**: Find content by date range
-
-### Video Tools
-- **get_videos**: List videos in your library
-- **get_video**: Get video details with transcript
-- **create_video_highlight**: Create highlight with timestamp
-- **get_video_highlights**: Get all highlights for a video
-- **update_video_position**: Save playback position
-- **get_video_position**: Get saved playback position
-
-### Document Management
+### Reader API (v3) — Documents
+- **list_documents**: List documents with filters (location, category, tag, date)
+- **get_document**: Get a single document by ID
 - **save_document**: Save new content to library
 - **update_document**: Modify document metadata
 - **delete_document**: Remove a document
+- **get_recent_content**: Get recently saved content
+
+### Highlights API (v2)
+- **get_highlights**: Retrieve highlights with filtering and pagination
+- **get_highlight**: Get a single highlight by ID
+- **create_highlight**: Create a new highlight
+- **update_highlight**: Modify an existing highlight
+- **delete_highlight**: Remove a highlight
+- **export_highlights**: Bulk export with incremental sync
+- **get_daily_review**: Get today's spaced repetition highlights
+
+### Books
+- **get_books**: Get books from your library
+- **get_book**: Get a single book by ID
+
+### Tags (Reader v3)
+- **get_tags**: List all tags in your library
+
+### Highlight Tag Management (v2)
+- **list_highlight_tags**: List tags on a highlight
+- **get_highlight_tag**: Get a specific tag on a highlight
+- **create_highlight_tag**: Add a tag to a highlight
+- **rename_highlight_tag**: Rename a tag on a highlight
+- **delete_highlight_tag**: Remove a tag from a highlight
+
+### Book Tag Management (v2)
+- **list_book_tags**: List tags on a book
+- **get_book_tag**: Get a specific tag on a book
+- **create_book_tag**: Add a tag to a book
+- **rename_book_tag**: Rename a tag on a book
+- **delete_book_tag**: Remove a tag from a book
 
 ### Bulk Operations
 - **bulk_save_documents**: Save multiple documents
