@@ -119,7 +119,12 @@ export class ReadwiseAPI {
     const queryParams = new URLSearchParams();
     queryParams.append('id', documentId);
     if (withHtmlContent) queryParams.append('withHtmlContent', 'true');
-    return this.client.get<any>(`/v3/list/?${queryParams.toString()}`);
+    const response = await this.client.get<any>(`/v3/list/?${queryParams.toString()}`);
+    const results = response.results ?? [];
+    if (results.length === 0) {
+      throw new Error(`Document not found: ${documentId}`);
+    }
+    return results[0];
   }
 
   /**

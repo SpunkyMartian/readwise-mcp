@@ -83,36 +83,6 @@ app.post('/bulk/delete', (req, res) => {
   });
 });
 
-// Mock bulk tag endpoint
-app.post('/bulk/tag', (req, res) => {
-  const { document_ids, tags, replace_existing, confirmation } = req.body;
-  
-  if (!confirmation || confirmation !== 'I confirm these tag changes') {
-    return res.status(400).json({ 
-      error: 'Missing or invalid confirmation. Please include "confirmation": "I confirm these tag changes"' 
-    });
-  }
-  
-  if (!document_ids || !Array.isArray(document_ids) || document_ids.length === 0) {
-    return res.status(400).json({ error: 'Invalid or empty document_ids array' });
-  }
-  
-  if (!tags || !Array.isArray(tags) || tags.length === 0) {
-    return res.status(400).json({ error: 'Invalid or empty tags array' });
-  }
-  
-  res.status(200).json({
-    success: true,
-    tagged: document_ids.length,
-    failed: 0,
-    results: document_ids.map(id => ({
-      document_id: id,
-      success: true,
-      tags: tags
-    }))
-  });
-});
-
 describe('Bulk Operations with Confirmation', () => {
   describe('Bulk Save', () => {
     it('should require confirmation for bulk save', async () => {
@@ -229,46 +199,4 @@ describe('Bulk Operations with Confirmation', () => {
     });
   });
   
-  describe('Bulk Tag', () => {
-    it('should require confirmation for bulk tag', async () => {
-      const response = await request(app)
-        .post('/bulk/tag')
-        .send({
-          document_ids: ['123', '456'],
-          tags: ['important', 'reference'],
-          replace_existing: false
-          // Missing confirmation
-        });
-      
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('Missing or invalid confirmation');
-    });
-    
-    it('should process bulk tag with valid confirmation', async () => {
-      const document_ids = ['123', '456'];
-      const tags = ['important', 'reference'];
-      
-      const response = await request(app)
-        .post('/bulk/tag')
-        .send({
-          document_ids,
-          tags,
-          replace_existing: false,
-          confirmation: 'I confirm these tag changes'
-        });
-      
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('success', true);
-      expect(response.body).toHaveProperty('tagged', 2);
-      expect(response.body).toHaveProperty('results');
-      expect(response.body.results).toHaveLength(2);
-      expect(response.body.results[0]).toHaveProperty('document_id', document_ids[0]);
-      expect(response.body.results[0]).toHaveProperty('tags');
-      expect(response.body.results[0].tags).toEqual(tags);
-      expect(response.body.results[1]).toHaveProperty('document_id', document_ids[1]);
-      expect(response.body.results[1]).toHaveProperty('tags');
-      expect(response.body.results[1].tags).toEqual(tags);
-    });
-  });
 }); 

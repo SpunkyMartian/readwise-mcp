@@ -29,21 +29,21 @@ This document provides a comprehensive overview of the Readwise MCP Server archi
 
 The Readwise MCP Server is a Model Context Protocol (MCP) server that provides AI assistants (like Claude) with access to Readwise reading libraries. It enables:
 
-- **Reading** highlights, books, documents, and videos from Readwise
+- **Reading** highlights, books, and documents from Readwise
 - **Managing** content through create, update, and delete operations
-- **Searching** across the library with advanced filtering
-- **Tracking** reading progress and analyzing content patterns
+- **Tagging** highlights and books with full CRUD tag management
+- **Syncing** via incremental export and daily review
 
 ### Key Metrics
 
 | Metric | Value |
 |--------|-------|
-| Source Files | 63 TypeScript files |
+| Source Files | ~50 TypeScript files |
 | Lines of Code | ~6,500 |
-| MCP Tools | 40+ |
+| MCP Tools | 30 |
 | MCP Prompts | 2 |
-| Test Files | 18 |
-| Test Coverage | Comprehensive unit tests |
+| Test Files | ~12 |
+| Test Coverage | Unit tests for core functionality |
 
 ---
 
@@ -68,7 +68,7 @@ The Readwise MCP Server is a Model Context Protocol (MCP) server that provides A
 │                         ReadwiseMCPServer                                    │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐ │
 │  │   Express    │  │  MCP Server  │  │Tool Registry │  │ Prompt Registry  │ │
-│  │   (HTTP)     │  │   (SDK)      │  │  (40+ tools) │  │   (2 prompts)    │ │
+│  │   (HTTP)     │  │   (SDK)      │  │  (30 tools)  │  │   (2 prompts)    │ │
 │  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────────┘ │
 └─────────────────────────────────────────────────────────────────────────────┘
                                        │
@@ -143,18 +143,28 @@ readwise-mcp/
 │   │       ├── base-tool.ts       # Abstract tool base class
 │   │       └── base-prompt.ts     # Abstract prompt base class
 │   │
-│   ├── tools/                     # MCP tool implementations (40+)
-│   │   ├── get-highlights.ts      # Highlight retrieval
-│   │   ├── get-books.ts           # Book retrieval
-│   │   ├── get-documents.ts       # Document retrieval
-│   │   ├── search-highlights.ts   # Highlight search
+│   ├── tools/                     # MCP tool implementations (30)
+│   │   ├── base.ts                # Abstract base tool class
+│   │   ├── validate-token.ts      # Token validation
+│   │   ├── list-documents.ts      # List documents (v3)
+│   │   ├── get-document.ts        # Get single document (v3)
+│   │   ├── save-document.ts       # Save document/URL (v3)
+│   │   ├── update-document.ts     # Update document (v3)
+│   │   ├── delete-document.ts     # Delete document (v3)
+│   │   ├── get-recent-content.ts  # Recent content
+│   │   ├── get-highlights.ts      # List highlights (v2)
+│   │   ├── get-highlight.ts       # Get single highlight (v2)
 │   │   ├── create-highlight.ts    # Create highlight
 │   │   ├── update-highlight.ts    # Update highlight
 │   │   ├── delete-highlight.ts    # Delete highlight
-│   │   ├── save-document.ts       # Save document/URL
-│   │   ├── bulk-*.ts              # Bulk operations
-│   │   ├── video-*.ts             # Video operations
-│   │   └── ...                    # Additional tools
+│   │   ├── export-highlights.ts   # Export/sync highlights
+│   │   ├── get-daily-review.ts    # Daily review highlights
+│   │   ├── get-books.ts           # List books (v2)
+│   │   ├── get-book.ts            # Get single book (v2)
+│   │   ├── get-tags.ts            # List tags (v3)
+│   │   ├── *-highlight-tag*.ts    # Highlight tag CRUD (5 tools)
+│   │   ├── *-book-tag*.ts         # Book tag CRUD (5 tools)
+│   │   └── bulk-*-documents.ts    # Bulk operations (3 tools)
 │   │
 │   ├── prompts/                   # MCP prompt implementations
 │   │   ├── highlight-prompt.ts    # Highlight analysis prompt
@@ -454,42 +464,47 @@ High-level API wrapper with business logic:
 class ReadwiseAPI {
   constructor(private client: ReadwiseClient) {}
 
-  // Highlights
+  // Auth
+  async validateToken(): Promise<any>;
+
+  // Highlights (v2)
   async getHighlights(params: HighlightParams): Promise<PaginatedResponse<Highlight>>;
+  async getHighlight(highlightId: string): Promise<Highlight>;
   async createHighlight(data: CreateHighlightData): Promise<Highlight>;
-  async updateHighlight(id: number, data: UpdateHighlightData): Promise<Highlight>;
-  async deleteHighlight(id: number): Promise<void>;
+  async updateHighlight(params: UpdateHighlightParams): Promise<Highlight>;
+  async deleteHighlight(params: DeleteHighlightParams): Promise<{ success: boolean }>;
 
-  // Books
+  // Books (v2)
   async getBooks(params: BookParams): Promise<PaginatedResponse<Book>>;
-  async getBook(id: number): Promise<Book>;
+  async getBook(bookId: string): Promise<Book>;
 
-  // Documents
-  async getDocuments(params: DocumentParams): Promise<PaginatedResponse<Document>>;
-  async saveDocument(data: SaveDocumentData): Promise<Document>;
-  async updateDocument(id: string, data: UpdateDocumentData): Promise<Document>;
+  // Documents (v3 Reader API)
+  async listDocuments(params: ListDocumentsParams): Promise<any>;
+  async getDocument(documentId: string, withHtmlContent?: boolean): Promise<any>;
+  async saveDocument(data: SaveDocumentData): Promise<any>;
+  async updateDocument(id: string, data: UpdateDocumentData): Promise<any>;
   async deleteDocument(id: string): Promise<void>;
 
-  // Search
-  async searchHighlights(query: string, params?: SearchParams): Promise<Highlight[]>;
+  // Export & Sync
+  async exportHighlights(params: ExportHighlightsParams): Promise<any>;
+  async getDailyReview(): Promise<any>;
 
-  // Videos
-  async getVideos(params?: VideoParams): Promise<PaginatedResponse<Video>>;
-  async getVideo(id: string): Promise<Video>;
-  async createVideoHighlight(data: VideoHighlightData): Promise<VideoHighlight>;
+  // Tags (v3)
+  async getTags(): Promise<TagResponse>;
 
-  // Bulk Operations
-  async bulkSaveDocuments(documents: SaveDocumentData[]): Promise<BulkResult>;
-  async bulkUpdateDocuments(updates: DocumentUpdate[]): Promise<BulkResult>;
-  async bulkDeleteDocuments(ids: string[]): Promise<BulkResult>;
+  // Highlight Tag CRUD (v2)
+  async listHighlightTags(highlightId: string): Promise<any>;
+  async getHighlightTag(highlightId: string, tagId: string): Promise<any>;
+  async createHighlightTag(highlightId: string, name: string): Promise<any>;
+  async renameHighlightTag(highlightId: string, tagId: string, name: string): Promise<any>;
+  async deleteHighlightTag(highlightId: string, tagId: string): Promise<any>;
 
-  // Tags
-  async getTags(): Promise<Tag[]>;
-  async getDocumentTags(documentId: string): Promise<Tag[]>;
-
-  // Reading Progress
-  async getReadingProgress(documentId: string): Promise<ReadingProgress>;
-  async updateReadingProgress(documentId: string, progress: ProgressData): Promise<void>;
+  // Book Tag CRUD (v2)
+  async listBookTags(bookId: string): Promise<any>;
+  async getBookTag(bookId: string, tagId: string): Promise<any>;
+  async createBookTag(bookId: string, name: string): Promise<any>;
+  async renameBookTag(bookId: string, tagId: string, name: string): Promise<any>;
+  async deleteBookTag(bookId: string, tagId: string): Promise<any>;
 }
 ```
 
@@ -497,12 +512,18 @@ class ReadwiseAPI {
 
 | Endpoint | Version | Purpose |
 |----------|---------|---------|
-| `/highlights` | v2 | Highlight CRUD |
-| `/books` | v2 | Book retrieval |
-| `/documents` | v3 | Document management |
-| `/tags` | v2 | Tag management |
-| `/videos` | v2 | Video features |
-| `/search` | v2 | Full-text search |
+| `/auth/` | - | Token validation |
+| `/highlights/` | v2 | Highlight CRUD |
+| `/highlights/:id/tags/` | v2 | Highlight tag CRUD |
+| `/books/` | v2 | Book retrieval |
+| `/books/:id/tags/` | v2 | Book tag CRUD |
+| `/export/` | v2 | Highlight export with incremental sync |
+| `/review/` | v2 | Daily review highlights |
+| `/tags` | v2 | List all tags |
+| `/v3/list/` | v3 | Document listing and retrieval |
+| `/v3/save/` | v3 | Save documents |
+| `/v3/update/` | v3 | Update documents |
+| `/v3/delete/` | v3 | Delete documents |
 
 ---
 
@@ -597,59 +618,75 @@ abstract class BaseMCPTool<TParams = unknown, TResult = unknown> {
 
 ### Tool Categories
 
-#### Retrieval Tools (Read Operations)
+#### Auth Tools
 
 | Tool | Description | Parameters |
 |------|-------------|------------|
-| `get_highlights` | Retrieve highlights | `page_size`, `page`, `book_id`, `updated_after` |
-| `get_books` | Get books from library | `page_size`, `page`, `category` |
-| `get_documents` | Get documents | `page_size`, `page`, `category` |
-| `search_highlights` | Search highlights | `query`, `page_size` |
-| `get_tags` | List available tags | - |
-| `get_reading_progress` | Get reading status | `document_id` |
-| `get_reading_list` | Get items with progress | `page_size`, `status` |
-| `get_recent_content` | Recent content | `days`, `limit` |
+| `validate_token` | Check API token validity | - |
 
-#### Management Tools (Write Operations)
+#### Document Tools (Reader v3)
 
 | Tool | Description | Parameters |
 |------|-------------|------------|
-| `create_highlight` | Add highlight | `text`, `book_id`, `note`, `location` |
-| `update_highlight` | Modify highlight | `id`, `text`, `note` |
-| `delete_highlight` | Remove highlight | `id`, `confirm` |
-| `create_note` | Add note to highlight | `highlight_id`, `note` |
-| `save_document` | Save URL/document | `url`, `title`, `tags` |
-| `update_document` | Modify document | `id`, `title`, `tags` |
-| `delete_document` | Remove document | `id`, `confirm` |
-| `update_reading_progress` | Update progress | `document_id`, `percentage` |
+| `list_documents` | List documents with filters | `location`, `category`, `tag`, `updated_after`, `page_cursor` |
+| `get_document` | Get a single document by ID | `document_id`, `with_html_content` |
+| `save_document` | Save URL/content to library | `url`, `title`, `html`, `tags`, etc. |
+| `update_document` | Update document metadata | `document_id`, `title`, `author`, etc. |
+| `delete_document` | Remove a document | `document_id` |
+| `get_recent_content` | Get recently saved content | `days`, `limit` |
 
-#### Search Tools
+#### Highlight Tools (v2)
 
 | Tool | Description | Parameters |
 |------|-------------|------------|
-| `advanced_search` | Complex filtering | `query`, `tags`, `date_from`, `date_to`, `category` |
-| `search_by_tag` | Filter by tags | `tags`, `match_all` |
-| `search_by_date` | Filter by dates | `start_date`, `end_date` |
+| `get_highlights` | List highlights with pagination | `page_size`, `page`, `book_id`, `updated_after` |
+| `get_highlight` | Get a single highlight by ID | `highlight_id` |
+| `create_highlight` | Create a new highlight | `text`, `book_id`, `note`, `location` |
+| `update_highlight` | Update an existing highlight | `highlight_id`, `text`, `note` |
+| `delete_highlight` | Remove a highlight | `highlight_id` |
+| `export_highlights` | Bulk export with incremental sync | `updated_after`, `ids`, `page_cursor` |
+| `get_daily_review` | Get today's daily review highlights | - |
 
-#### Video Tools
+#### Book Tools (v2)
 
 | Tool | Description | Parameters |
 |------|-------------|------------|
-| `get_videos` | List videos | `page_size`, `page` |
-| `get_video` | Get video details | `id`, `include_transcript` |
-| `create_video_highlight` | Highlight segment | `video_id`, `start_time`, `end_time`, `text` |
-| `get_video_highlights` | Get video highlights | `video_id` |
-| `update_video_position` | Track playback | `video_id`, `position` |
-| `get_video_position` | Get playback position | `video_id` |
+| `get_books` | List books from library | `page_size`, `page`, `category` |
+| `get_book` | Get a single book by ID | `book_id` |
+
+#### Tag Tools
+
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `get_tags` | List all tags in library | - |
+
+#### Highlight Tag CRUD (v2)
+
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `list_highlight_tags` | List tags on a highlight | `highlight_id` |
+| `get_highlight_tag` | Get a specific tag on a highlight | `highlight_id`, `tag_id` |
+| `create_highlight_tag` | Add a tag to a highlight | `highlight_id`, `name` |
+| `rename_highlight_tag` | Rename a tag on a highlight | `highlight_id`, `tag_id`, `name` |
+| `delete_highlight_tag` | Remove a tag from a highlight | `highlight_id`, `tag_id` |
+
+#### Book Tag CRUD (v2)
+
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `list_book_tags` | List tags on a book | `book_id` |
+| `get_book_tag` | Get a specific tag on a book | `book_id`, `tag_id` |
+| `create_book_tag` | Add a tag to a book | `book_id`, `name` |
+| `rename_book_tag` | Rename a tag on a book | `book_id`, `tag_id`, `name` |
+| `delete_book_tag` | Remove a tag from a book | `book_id`, `tag_id` |
 
 #### Bulk Operations
 
 | Tool | Description | Parameters |
 |------|-------------|------------|
-| `bulk_save_documents` | Save multiple | `documents[]`, `confirm` |
-| `bulk_update_documents` | Update multiple | `updates[]`, `confirm` |
-| `bulk_delete_documents` | Delete multiple | `ids[]`, `confirm` |
-| `bulk_tags` | Apply tags | `document_ids[]`, `tags[]`, `action` |
+| `bulk_save_documents` | Save multiple documents | `documents[]`, `confirm` |
+| `bulk_update_documents` | Update multiple documents | `updates[]`, `confirm` |
+| `bulk_delete_documents` | Delete multiple documents | `ids[]`, `confirm` |
 
 ### Tool Implementation Example
 
@@ -844,17 +881,6 @@ interface Document {
 interface Tag {
   id: number;
   name: string;
-}
-
-// Video
-interface Video {
-  id: string;
-  title: string;
-  url: string;
-  duration?: number;
-  thumbnail_url?: string;
-  transcript?: VideoTranscript;
-  created_at: string;
 }
 ```
 
@@ -1427,40 +1453,40 @@ async myNewMethod(params: MyParams): Promise<MyResult> {
 
 ## Appendix: MCP Tool Reference
 
-### Complete Tool List
+### Complete Tool List (30 tools)
 
 | Tool Name | Category | Description |
 |-----------|----------|-------------|
-| `get_highlights` | Retrieval | Get paginated highlights |
-| `get_books` | Retrieval | Get books from library |
-| `get_documents` | Retrieval | Get documents |
-| `search_highlights` | Search | Search highlights by query |
-| `get_tags` | Retrieval | List all tags |
-| `get_reading_progress` | Retrieval | Get document reading progress |
-| `get_reading_list` | Retrieval | Get reading list with status |
-| `get_recent_content` | Retrieval | Get recently accessed content |
-| `create_highlight` | Management | Create new highlight |
-| `update_highlight` | Management | Update existing highlight |
-| `delete_highlight` | Management | Delete highlight |
-| `create_note` | Management | Add note to highlight |
-| `save_document` | Management | Save URL/document |
-| `update_document` | Management | Update document metadata |
-| `delete_document` | Management | Delete document |
-| `update_reading_progress` | Management | Update reading progress |
-| `advanced_search` | Search | Complex search with filters |
-| `search_by_tag` | Search | Filter by tags |
-| `search_by_date` | Search | Filter by date range |
-| `get_videos` | Video | List videos |
-| `get_video` | Video | Get video with transcript |
-| `create_video_highlight` | Video | Highlight video segment |
-| `get_video_highlights` | Video | Get highlights from video |
-| `update_video_position` | Video | Track video playback |
-| `get_video_position` | Video | Get playback position |
+| `validate_token` | Auth | Check API token validity |
+| `list_documents` | Documents | List documents with filters |
+| `get_document` | Documents | Get a single document by ID |
+| `save_document` | Documents | Save URL/content to library |
+| `update_document` | Documents | Update document metadata |
+| `delete_document` | Documents | Remove a document |
+| `get_recent_content` | Documents | Get recently saved content |
+| `get_highlights` | Highlights | List highlights with pagination |
+| `get_highlight` | Highlights | Get a single highlight by ID |
+| `create_highlight` | Highlights | Create a new highlight |
+| `update_highlight` | Highlights | Update an existing highlight |
+| `delete_highlight` | Highlights | Remove a highlight |
+| `export_highlights` | Highlights | Bulk export with incremental sync |
+| `get_daily_review` | Highlights | Get today's daily review |
+| `get_books` | Books | List books from library |
+| `get_book` | Books | Get a single book by ID |
+| `get_tags` | Tags | List all tags |
+| `list_highlight_tags` | Tags | List tags on a highlight |
+| `get_highlight_tag` | Tags | Get a specific highlight tag |
+| `create_highlight_tag` | Tags | Add a tag to a highlight |
+| `rename_highlight_tag` | Tags | Rename a highlight tag |
+| `delete_highlight_tag` | Tags | Remove a tag from a highlight |
+| `list_book_tags` | Tags | List tags on a book |
+| `get_book_tag` | Tags | Get a specific book tag |
+| `create_book_tag` | Tags | Add a tag to a book |
+| `rename_book_tag` | Tags | Rename a book tag |
+| `delete_book_tag` | Tags | Remove a tag from a book |
 | `bulk_save_documents` | Bulk | Save multiple documents |
 | `bulk_update_documents` | Bulk | Update multiple documents |
 | `bulk_delete_documents` | Bulk | Delete multiple documents |
-| `bulk_tags` | Bulk | Apply tags to documents |
-| `document_tags` | Tags | Manage document tags |
 
 ---
 

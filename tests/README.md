@@ -7,11 +7,15 @@ This directory contains tests for the Readwise MCP server features. The tests us
 The tests are organized by feature:
 
 - `status.test.ts`: Tests for the status endpoint
-- `tags.test.ts`: Tests for tag management features
-- `advanced-search.test.ts`: Tests for advanced search functionality
-- `reading-progress.test.ts`: Tests for reading progress tracking
 - `bulk-operations.test.ts`: Tests for bulk operations with confirmation
 - `delete-confirmation.test.ts`: Tests for delete confirmation mechanism
+- `constants.test.ts`: Tests for application constants
+- `api/client.test.ts`: Tests for the HTTP client
+- `tools/get-highlights.test.ts`: Tests for the get-highlights tool
+- `tools/get-books.test.ts`: Tests for the get-books tool
+- `types/errors.test.ts`: Tests for error types
+- `types/validation.test.ts`: Tests for validation utilities
+- `utils/rate-limiter.test.ts`: Tests for rate limiting
 
 ## Running Tests
 
@@ -26,13 +30,6 @@ npm run test:watch
 
 # Generate test coverage report
 npm run test:coverage
-
-# Run specific test suites
-npm run test:tags
-npm run test:search
-npm run test:bulk
-npm run test:progress
-npm run test:delete
 ```
 
 ## Test Coverage

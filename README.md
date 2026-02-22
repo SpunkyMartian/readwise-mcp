@@ -11,15 +11,11 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for [Re
 ## Features
 
 - **Books & Articles**: Browse your collection of saved books and articles
-- **Highlights**: Access all your highlighted passages
-- **Search**: Find content across your entire Readwise library
-- **Recent Content**: Quickly retrieve your latest saved items
-- **Tag Management**: Organize and filter content with tags
-- **Advanced Search**: Powerful filtering by author, date, tags, and more
-- **Reading Progress**: Track your reading status and completion percentage
+- **Highlights**: Access all your highlighted passages with export and daily review
+- **Documents**: List, save, update, and delete documents via the Reader API (v3)
+- **Tag Management**: Full CRUD on highlight and book tags
 - **Bulk Operations**: Efficiently manage multiple documents at once
 - **Content Management**: Save, update, and delete content in your library
-- **Video Support**: Access and interact with videos saved in your Readwise Reader
 - **Rate Limiting**: Smart handling of API limits to prevent throttling
 - **Transport Options**: Support for both stdio (Claude Desktop) and SSE (web) transports
 - **MCP Compliance**: Full protocol compliance with proper request_id handling
@@ -90,97 +86,25 @@ Once connected to Claude, unleash your Readwise knowledge with questions like:
 - "Show me books I've completed reading"
 - "Save this article to my Readwise: https://example.com/interesting-article"
 - "Add the tag 'must-read' to that article about quantum computing"
-- "What's my reading progress on that book about machine learning?"
-
-### Video-Related Examples
-
-- "Show me all YouTube videos I've saved in Readwise"
-- "What highlights did I make on that video about TypeScript?"
-- "What's my current playback position for that AI conference video?"
-- "Find videos in my library that mention 'machine learning'"
-- "Create a highlight at 23:45 in the TypeScript tutorial with the note 'Important pattern'"
-- "What did the speaker say around the 15-minute mark in that AI safety video?"
-- "Show me the transcript of the programming tutorial I saved yesterday"
+- "What's my daily review for today?"
 
 ## Feature Documentation
 
-### Basic Features
-
-#### Browsing Content
+### Browsing Content
 - **List books and articles**: Retrieve your saved books with pagination
+- **List documents**: Browse documents from Reader with filters (location, category, tag)
 - **Get highlights**: Access all your highlighted passages with filtering options
-- **Search content**: Full-text search across your entire library
 - **Get recent content**: Quickly access your latest saved items
+- **Export highlights**: Bulk export with incremental sync support
+- **Daily review**: Get today's spaced repetition highlights
 
 ### Tag Management
 
-Organize your content with tags:
+Organize your content with tags on highlights and books:
 
-- **List all tags**: Get all tags in your library
-- **Get tags for a document**: View tags on a specific document
-- **Update tags**: Replace all tags on a document
-- **Add a specific tag**: Add a single tag to a document
-- **Remove a specific tag**: Remove a tag from a document
-- **Bulk tagging**: Apply tags to multiple documents at once
-
-### Advanced Search
-
-Powerful filtering options for finding exactly what you need:
-
-- `query`: Search text
-- `category`: Filter by content type (book, article, etc.)
-- `tags`: Filter by tags (comma-separated)
-- `author`: Filter by author
-- `title`: Filter by title
-- `location`: Filter by location (new, later, archive, feed)
-- `dateFrom` & `dateTo`: Date range in ISO 8601 format
-- `sortBy`: Field to sort by (created_at, updated_at, title, author)
-- `sortOrder`: Sort direction (asc, desc)
-
-### Reading Progress Tracking
-
-Track your reading status and progress:
-
-- **Get reading progress**: View current progress on any document
-- **Update reading progress**: Set status, percentage, and page numbers
-- **Get reading list**: Filter by reading status
-
-Reading statuses:
-- `not_started`: Haven't begun reading
-- `in_progress`: Currently reading
-- `completed`: Finished reading
-
-### Video Features
-
-Access and interact with videos saved in your Readwise Reader:
-
-#### Video Listing and Details
-
-- **List all videos**: Browse videos from YouTube, Vimeo, and other platforms
-- **Get video details with transcript**: Access complete metadata and time-synced transcripts
-
-#### Video Highlights
-
-- **Create highlight with timestamp**: Mark important moments in videos
-- **Get video highlights**: Retrieve all highlights for a video, sorted by timestamp
-
-#### Video Playback Position
-
-- **Update playback position**: Save your current position for later resuming
-- **Get playback position**: Resume where you left off
-
-#### How Transcript Access Works
-
-The video transcript feature:
-1. Extracts the time-synced transcript from the video's HTML content
-2. Parses timestamp and text pairs
-3. Returns transcript as an array of segments with timestamps
-
-This allows you to:
-- Search for specific content within videos
-- Create highlights at precise moments
-- Jump directly to important points
-- Reference video content with exact time context
+- **List tags**: Get all tags in your library
+- **Highlight tags**: List, get, create, rename, and delete tags on highlights
+- **Book tags**: List, get, create, rename, and delete tags on books
 
 ### Content Management
 
@@ -197,7 +121,6 @@ Efficiently manage multiple documents at once:
 - **Bulk save**: Save multiple URLs/content items
 - **Bulk update**: Update multiple documents
 - **Bulk delete**: Remove multiple documents
-- **Bulk tag**: Apply tags to multiple documents
 
 #### Safety Confirmations
 
@@ -290,8 +213,6 @@ The repository includes demo files to help you test and explore functionality:
 
 - **demo/test-connection.html**: Test basic connection to the server
 - **demo/mcp-demo.html**: Comprehensive UI for all features
-- **demo/video-features.html**: Specialized interface for video functionality
-- **demo/enhanced-transcript-features.html**: Advanced transcript features
 
 ### Running Tests
 
@@ -441,13 +362,6 @@ The server includes built-in rate limiting. If you encounter rate limit errors:
 1. Wait a few minutes before trying again
 2. Reduce the frequency of requests
 3. Check the rate limit headers in responses
-
-### Video-Specific Issues
-
-1. **Missing transcripts**: Not all videos have transcripts. YouTube videos typically have the best support.
-2. **Transcript quality**: Transcripts are from the video platform and may contain errors.
-3. **Timestamp inconsistencies**: Different platforms use different formats; the API normalizes when possible.
-4. **Playback position not updating**: Ensure both `position` and `duration` parameters are provided.
 
 ## Privacy & Security
 

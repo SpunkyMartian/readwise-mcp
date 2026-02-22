@@ -64,11 +64,6 @@ The project includes Jest tests for unit and integration testing:
 - `npm test`: Runs all tests
 - `npm run test:watch`: Runs tests in watch mode
 - `npm run test:coverage`: Runs tests with coverage reporting
-- `npm run test:tags`: Tests tag-related functionality
-- `npm run test:search`: Tests search functionality
-- `npm run test:bulk`: Tests bulk operations
-- `npm run test:progress`: Tests reading progress functionality
-- `npm run test:delete`: Tests deletion confirmation
 
 ## Debugging
 
