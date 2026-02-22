@@ -1,13 +1,13 @@
 import { BaseMCPTool } from '../mcp/registry/base-tool.js';
 import { ReadwiseAPI } from '../api/readwise-api.js';
-import { UpdateDocumentParams, Document, MCPToolResult, isAPIError } from '../types/index.js';
+import { UpdateDocumentParams, MCPToolResult, isAPIError } from '../types/index.js';
 import { ValidationResult, validateRequired } from '../types/validation.js';
 import type { Logger } from '../utils/logger-interface.js';
 
 /**
  * Tool for updating document metadata
  */
-export class UpdateDocumentTool extends BaseMCPTool<UpdateDocumentParams, Document> {
+export class UpdateDocumentTool extends BaseMCPTool<UpdateDocumentParams, any> {
   /**
    * The name of the tool
    */
@@ -95,7 +95,7 @@ export class UpdateDocumentTool extends BaseMCPTool<UpdateDocumentParams, Docume
   /**
    * Execute the tool
    */
-  async execute(params: UpdateDocumentParams): Promise<MCPToolResult<Document>> {
+  async execute(params: UpdateDocumentParams): Promise<MCPToolResult<any>> {
     try {
       this.logger.debug('Executing update_document tool', params as any);
       const result = await this.api.updateDocument(params);

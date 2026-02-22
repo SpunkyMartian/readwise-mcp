@@ -1,6 +1,5 @@
 import { BaseMCPPrompt } from '../mcp/registry/base-prompt.js';
 import { ReadwiseAPI } from '../api/readwise-api.js';
-import { SearchParams } from '../types/index.js';
 import { ValidationResult, validateRequired, validateNumberRange } from '../types/validation.js';
 import type { Logger } from '../utils/logger-interface.js';
 import type { MCPResponse } from '../mcp/types.js';
@@ -8,10 +7,9 @@ import type { MCPResponse } from '../mcp/types.js';
 /**
  * Parameters for the ReadwiseSearchPrompt
  */
-export interface ReadwiseSearchPromptParams extends SearchParams {
-  /**
-   * Optional context to include in the prompt
-   */
+export interface ReadwiseSearchPromptParams {
+  query: string;
+  limit?: number;
   context?: string;
 }
 
@@ -83,20 +81,22 @@ export class ReadwiseSearchPrompt extends BaseMCPPrompt<ReadwiseSearchPromptPara
     }
     
     try {
-      // Search for highlights in Readwise
-      const searchResults = await this.api.searchHighlights({
-        query: params.query,
-        limit: params.limit || 10
+      // Fetch highlights using the real API and filter client-side
+      const highlightsResponse = await this.api.getHighlights({
+        page_size: params.limit || 20,
+        search: params.query
       });
-      
-      if (searchResults.length === 0) {
+
+      const highlights = highlightsResponse.results || [];
+
+      if (highlights.length === 0) {
         this.logger.warn('No search results found', { query: params.query } as any);
         throw new Error(`No results found for search query: "${params.query}". Try a different search term.`);
       }
-      
+
       // Format search results as structured content
-      const formattedResults = searchResults.map((result, index) => {
-        return `${index + 1}. "${result.highlight.text}"${result.highlight.note ? ` - Note: ${result.highlight.note}` : ''}\n   Source: ${result.book.title || 'Unknown'} by ${result.book.author || 'Unknown Author'}`;
+      const formattedResults = highlights.map((h: any, index: number) => {
+        return `${index + 1}. "${h.text}"${h.note ? ` - Note: ${h.note}` : ''}\n   Source: ${h.book_title || 'Unknown'} by ${h.book_author || 'Unknown Author'}`;
       }).join('\n\n');
       
       // Build the message content
@@ -109,7 +109,7 @@ export class ReadwiseSearchPrompt extends BaseMCPPrompt<ReadwiseSearchPromptPara
       
       this.logger.debug('Successfully generated search results prompt', {
         query: params.query,
-        resultCount: searchResults.length
+        resultCount: highlights.length
       } as any);
       
       // Return MCPResponse

@@ -219,67 +219,6 @@ export interface TagResponse {
   tags: string[];
 }
 
-export interface DocumentTagsResponse {
-  document_id: string;
-  tags: string[];
-}
-
-export interface UpdateTagsRequest {
-  tags: string[];
-}
-
-export interface BulkTagRequest {
-  document_ids: string[];
-  tags: string[];
-  replace_existing?: boolean;
-  confirmation: string;
-}
-
-export interface BulkTagResponse {
-  success: boolean;
-  updated_documents: number;
-  errors?: Array<{
-    document_id: string;
-    error: string;
-  }>;
-}
-
-export interface ReadingProgress {
-  document_id: string;
-  title: string;
-  status: 'not_started' | 'in_progress' | 'completed';
-  percentage: number;
-  current_page?: number;
-  total_pages?: number;
-  last_read_at?: string;
-}
-
-export interface GetReadingProgressParams {
-  document_id: string;
-}
-
-export interface UpdateReadingProgressParams {
-  document_id: string;
-  status: 'not_started' | 'in_progress' | 'completed';
-  percentage?: number;
-  current_page?: number;
-  total_pages?: number;
-  last_read_at?: string;
-}
-
-export interface GetReadingListParams {
-  status?: 'not_started' | 'in_progress' | 'completed';
-  category?: string;
-  page?: number;
-  page_size?: number;
-}
-
-export interface ReadingListResponse {
-  count: number;
-  next?: string;
-  previous?: string;
-  results: Array<Document & { reading_progress: ReadingProgress }>;
-}
 
 /**
  * Content management types
@@ -309,138 +248,27 @@ export interface DeleteHighlightParams {
   confirmation: string;
 }
 
-export interface CreateNoteParams {
-  highlight_id: string;
-  note: string;
-}
 
-export interface UpdateNoteParams {
-  highlight_id: string;
-  note: string;
-}
-
-export interface DeleteNoteParams {
-  highlight_id: string;
-  confirmation: string;
+/**
+ * Reader API v3 document listing types
+ */
+export interface ListDocumentsParams {
+  location?: 'new' | 'later' | 'archive' | 'feed';
+  category?: string;
+  tag?: string;
+  updated_after?: string;
+  with_html_content?: boolean;
+  page_cursor?: string;
 }
 
 /**
- * Advanced search types
+ * Highlights export types
  */
-export interface AdvancedSearchParams {
-  query?: string;
-  book_ids?: string[];
-  tags?: string[];
-  categories?: string[];
-  date_range?: {
-    start?: string;
-    end?: string;
-  };
-  location_range?: {
-    start?: number;
-    end?: number;
-  };
-  has_note?: boolean;
-  sort_by?: 'created_at' | 'updated_at' | 'highlighted_at' | 'location';
-  sort_order?: 'asc' | 'desc';
-  page?: number;
-  page_size?: number;
-}
-
-export interface SearchByTagParams {
-  tags: string[];
-  match_all?: boolean;
-  page?: number;
-  page_size?: number;
-}
-
-export interface SearchByDateParams {
-  start_date?: string;
-  end_date?: string;
-  date_field?: 'created_at' | 'updated_at' | 'highlighted_at';
-  page?: number;
-  page_size?: number;
-}
-
-export interface AdvancedSearchResult {
-  highlights: PaginatedResponse<Highlight>;
-  facets?: {
-    tags?: Array<{ tag: string; count: number }>;
-    categories?: Array<{ category: string; count: number }>;
-    books?: Array<{ book_id: string; title: string; count: number }>;
-  };
-}
-
-export interface VideoTranscriptSegment {
-  timestamp: string;
-  text: string;
-}
-
-export interface VideoMetadata {
-  id: string;
-  title: string;
-  url: string;
-  author: string;
-  tags: string[];
-  duration?: number;
-  platform?: string;
-  thumbnail_url?: string;
-  description?: string;
-}
-
-export interface VideoHighlight {
-  id: string;
-  text: string;
-  note?: string;
-  timestamp: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface VideoPlaybackPosition {
-  document_id: string;
-  position: number;
-  percentage: number;
-  last_updated: string;
-}
-
-export interface GetVideosParams {
-  limit?: number;
-  pageCursor?: string;
-  tags?: string[];
-  platform?: string;
-}
-
-export interface GetVideoParams {
-  document_id: string;
-}
-
-export interface CreateVideoHighlightParams {
-  document_id: string;
-  text: string;
-  timestamp: string;
-  note?: string;
-}
-
-export interface UpdateVideoPositionParams {
-  document_id: string;
-  position: number;
-  duration: number;
-}
-
-export interface VideoResponse {
-  count: number;
-  results: VideoMetadata[];
-  nextPageCursor?: string;
-}
-
-export interface VideoDetailsResponse extends VideoMetadata {
-  transcript: VideoTranscriptSegment[];
-}
-
-export interface VideoHighlightsResponse {
-  count: number;
-  results: VideoHighlight[];
+export interface ExportHighlightsParams {
+  updated_after?: string;
+  ids?: string[];
+  include_deleted?: boolean;
+  page_cursor?: string;
 }
 
 /**

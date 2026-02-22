@@ -35,27 +35,10 @@ import { getConfig } from './utils/config.js';
 // Tool imports - need .js extension
 import { GetBooksTool } from './tools/get-books.js';
 import { GetHighlightsTool } from './tools/get-highlights.js';
-import { GetDocumentsTool } from './tools/get-documents.js';
-import { SearchHighlightsTool } from './tools/search-highlights.js';
 import { GetTagsTool } from './tools/get-tags.js';
-import { DocumentTagsTool } from './tools/document-tags.js';
-import { BulkTagsTool } from './tools/bulk-tags.js';
-import { GetReadingProgressTool } from './tools/get-reading-progress.js';
-import { UpdateReadingProgressTool } from './tools/update-reading-progress.js';
-import { GetReadingListTool } from './tools/get-reading-list.js';
 import { CreateHighlightTool } from './tools/create-highlight.js';
 import { UpdateHighlightTool } from './tools/update-highlight.js';
 import { DeleteHighlightTool } from './tools/delete-highlight.js';
-import { CreateNoteTool } from './tools/create-note.js';
-import { AdvancedSearchTool } from './tools/advanced-search.js';
-import { SearchByTagTool } from './tools/search-by-tag.js';
-import { SearchByDateTool } from './tools/search-by-date.js';
-import { GetVideosTool } from './tools/get-videos.js';
-import { GetVideoTool } from './tools/get-video.js';
-import { CreateVideoHighlightTool } from './tools/create-video-highlight.js';
-import { GetVideoHighlightsTool } from './tools/get-video-highlights.js';
-import { UpdateVideoPositionTool } from './tools/update-video-position.js';
-import { GetVideoPositionTool } from './tools/get-video-position.js';
 import { SaveDocumentTool } from './tools/save-document.js';
 import { UpdateDocumentTool } from './tools/update-document.js';
 import { DeleteDocumentTool } from './tools/delete-document.js';
@@ -63,6 +46,24 @@ import { GetRecentContentTool } from './tools/get-recent-content.js';
 import { BulkSaveDocumentsTool } from './tools/bulk-save-documents.js';
 import { BulkUpdateDocumentsTool } from './tools/bulk-update-documents.js';
 import { BulkDeleteDocumentsTool } from './tools/bulk-delete-documents.js';
+// New tools backed by real API endpoints
+import { ValidateTokenTool } from './tools/validate-token.js';
+import { ListDocumentsTool } from './tools/list-documents.js';
+import { GetDocumentTool } from './tools/get-document.js';
+import { GetHighlightTool } from './tools/get-highlight.js';
+import { GetBookTool } from './tools/get-book.js';
+import { ExportHighlightsTool } from './tools/export-highlights.js';
+import { GetDailyReviewTool } from './tools/get-daily-review.js';
+import { ListHighlightTagsTool } from './tools/list-highlight-tags.js';
+import { GetHighlightTagTool } from './tools/get-highlight-tag.js';
+import { CreateHighlightTagTool } from './tools/create-highlight-tag.js';
+import { RenameHighlightTagTool } from './tools/rename-highlight-tag.js';
+import { DeleteHighlightTagTool } from './tools/delete-highlight-tag.js';
+import { ListBookTagsTool } from './tools/list-book-tags.js';
+import { GetBookTagTool } from './tools/get-book-tag.js';
+import { CreateBookTagTool } from './tools/create-book-tag.js';
+import { RenameBookTagTool } from './tools/rename-book-tag.js';
+import { DeleteBookTagTool } from './tools/delete-book-tag.js';
 
 // Prompt imports - need .js extension
 import { ReadwiseHighlightPrompt } from './prompts/highlight-prompt.js';
@@ -208,39 +209,41 @@ export class ReadwiseMCPServer {
 
     // All tool classes - instantiate and register in one pass
     const toolClasses = [
-      // Core tools
-      GetHighlightsTool,
-      GetBooksTool,
-      GetDocumentsTool,
-      SearchHighlightsTool,
-      GetTagsTool,
-      DocumentTagsTool,
-      BulkTagsTool,
-      GetReadingProgressTool,
-      UpdateReadingProgressTool,
-      GetReadingListTool,
-      // Highlight management
-      CreateHighlightTool,
-      UpdateHighlightTool,
-      DeleteHighlightTool,
-      CreateNoteTool,
-      // Search tools
-      AdvancedSearchTool,
-      SearchByTagTool,
-      SearchByDateTool,
-      // Video tools
-      GetVideosTool,
-      GetVideoTool,
-      CreateVideoHighlightTool,
-      GetVideoHighlightsTool,
-      UpdateVideoPositionTool,
-      GetVideoPositionTool,
-      // Document management tools
+      // Auth
+      ValidateTokenTool,
+      // Reader API (v3) - Documents
+      ListDocumentsTool,
+      GetDocumentTool,
       SaveDocumentTool,
       UpdateDocumentTool,
       DeleteDocumentTool,
       GetRecentContentTool,
-      // Bulk document operation tools
+      // Highlights API (v2) - Core
+      GetHighlightsTool,
+      GetHighlightTool,
+      CreateHighlightTool,
+      UpdateHighlightTool,
+      DeleteHighlightTool,
+      ExportHighlightsTool,
+      GetDailyReviewTool,
+      // Books
+      GetBooksTool,
+      GetBookTool,
+      // Tags (Reader v3)
+      GetTagsTool,
+      // Highlight tags (v2)
+      ListHighlightTagsTool,
+      GetHighlightTagTool,
+      CreateHighlightTagTool,
+      RenameHighlightTagTool,
+      DeleteHighlightTagTool,
+      // Book tags (v2)
+      ListBookTagsTool,
+      GetBookTagTool,
+      CreateBookTagTool,
+      RenameBookTagTool,
+      DeleteBookTagTool,
+      // Bulk operations
       BulkSaveDocumentsTool,
       BulkUpdateDocumentsTool,
       BulkDeleteDocumentsTool,
