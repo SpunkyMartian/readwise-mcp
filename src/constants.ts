@@ -25,13 +25,14 @@ export const API_ENDPOINTS = {
     HIGHLIGHTS: '/highlights',
     BOOKS: '/books',
     DOCUMENTS: '/documents',
-    TAGS: '/tags',
     SEARCH: '/search',
   },
   V3: {
+    LIST: '/v3/list/',
     SAVE: '/v3/save/',
     UPDATE: '/v3/update/',
     DELETE: '/v3/delete/',
+    TAGS: '/v3/tags/',
   },
 } as const;
 

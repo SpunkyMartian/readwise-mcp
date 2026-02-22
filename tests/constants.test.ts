@@ -38,22 +38,25 @@ describe('API_ENDPOINTS', () => {
       expect(API_ENDPOINTS.V2.HIGHLIGHTS).toBe('/highlights');
       expect(API_ENDPOINTS.V2.BOOKS).toBe('/books');
       expect(API_ENDPOINTS.V2.DOCUMENTS).toBe('/documents');
-      expect(API_ENDPOINTS.V2.TAGS).toBe('/tags');
       expect(API_ENDPOINTS.V2.SEARCH).toBe('/search');
     });
   });
 
   describe('V3', () => {
     it('should have the correct V3 endpoints', () => {
+      expect(API_ENDPOINTS.V3.LIST).toBe('/v3/list/');
       expect(API_ENDPOINTS.V3.SAVE).toBe('/v3/save/');
       expect(API_ENDPOINTS.V3.UPDATE).toBe('/v3/update/');
       expect(API_ENDPOINTS.V3.DELETE).toBe('/v3/delete/');
+      expect(API_ENDPOINTS.V3.TAGS).toBe('/v3/tags/');
     });
 
     it('should have trailing slashes for V3 endpoints', () => {
+      expect(API_ENDPOINTS.V3.LIST.endsWith('/')).toBe(true);
       expect(API_ENDPOINTS.V3.SAVE.endsWith('/')).toBe(true);
       expect(API_ENDPOINTS.V3.UPDATE.endsWith('/')).toBe(true);
       expect(API_ENDPOINTS.V3.DELETE.endsWith('/')).toBe(true);
+      expect(API_ENDPOINTS.V3.TAGS.endsWith('/')).toBe(true);
     });
   });
 });

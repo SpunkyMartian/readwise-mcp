@@ -213,11 +213,11 @@ export class ReadwiseAPI {
   }
 
   /**
-   * Get all tags from Readwise
+   * Get all tags from Readwise Reader (v3 API)
    * @returns A promise resolving to a list of all tags
    */
   async getTags(): Promise<TagResponse> {
-    return this.client.get<TagResponse>('/tags');
+    return this.client.get<TagResponse>('/v3/tags/');
   }
 
 
